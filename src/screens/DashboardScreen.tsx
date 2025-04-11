@@ -10,9 +10,15 @@ import { calculateCaloriesFromSteps } from '../utils/fitness';
 
 const DashboardScreen = () => {
   const dispatch = useDispatch();
-  const { steps, caloriesBurned, caloriesConsumed, weight } = useSelector((state: RootState) => state.fitness);
+  const { steps, caloriesBurned, caloriesConsumed, weight, fitnessGoals } = useSelector((state: RootState) => state.fitness);
   const [subscription, setSubscription] = useState(null);
-  const [dailyCalorieGoal] = useState(2000); // This could come from settings or calculations
+  
+  // Get the user's daily calorie goal from Redux
+  const dailyCalorieGoal = fitnessGoals?.dailyCalories || 2000;
+  const dailyStepsGoal = fitnessGoals?.dailySteps || 10000;
+
+  // Calculate progress percentages
+  const stepsPercentage = Math.min(100, Math.round((steps / dailyStepsGoal) * 100));
 
   const startStepTracking = () => {
     // Use accelerometer as a simple step counter simulation
@@ -72,6 +78,10 @@ const DashboardScreen = () => {
         <View style={styles.statCard}>
           <Text style={styles.statLabel}>Steps</Text>
           <Text style={styles.statValue}>{steps}</Text>
+          <View style={styles.progressContainer}>
+            <View style={[styles.progressBar, { width: `${stepsPercentage}%` }]} />
+            <Text style={styles.progressText}>{stepsPercentage}% of daily goal</Text>
+          </View>
         </View>
         
         <View style={styles.statCard}>
@@ -99,6 +109,26 @@ const DashboardScreen = () => {
         <Text style={styles.calorieSubtext}>
           Remaining: {caloriesRemaining} calories
         </Text>
+      </View>
+      
+      <View style={styles.goalInfo}>
+        <Text style={styles.goalTitle}>Your Fitness Goals</Text>
+        <View style={styles.goalRow}>
+          <Text style={styles.goalText}>Daily Steps: {dailyStepsGoal}</Text>
+          <Text style={styles.goalProgress}>{stepsPercentage}%</Text>
+        </View>
+        <View style={[styles.goalProgressBar, { width: `${stepsPercentage}%` }]} />
+        
+        <View style={styles.goalRow}>
+          <Text style={styles.goalText}>Target Weight: {fitnessGoals?.targetWeight} kg</Text>
+          {fitnessGoals?.targetWeight < weight ? (
+            <Text style={styles.goalDelta}>-{(weight - fitnessGoals.targetWeight).toFixed(1)} kg to go</Text>
+          ) : fitnessGoals?.targetWeight > weight ? (
+            <Text style={styles.goalDelta}>+{(fitnessGoals.targetWeight - weight).toFixed(1)} kg to go</Text>
+          ) : (
+            <Text style={styles.goalAchieved}>Achieved!</Text>
+          )}
+        </View>
       </View>
     </ScrollView>
   );
@@ -189,7 +219,69 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#4CAF50',
     fontWeight: 'bold',
-  }
+  },
+  progressContainer: {
+    marginTop: 8,
+    width: '100%',
+  },
+  progressBar: {
+    height: 4,
+    backgroundColor: '#4CAF50',
+    borderRadius: 2,
+  },
+  progressText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  goalInfo: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    margin: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+    marginBottom: 30,
+  },
+  goalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  goalRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 5,
+  },
+  goalText: {
+    fontSize: 14,
+    color: '#666',
+  },
+  goalProgress: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
+  goalProgressBar: {
+    height: 6,
+    backgroundColor: '#4CAF50',
+    borderRadius: 3,
+    marginBottom: 15,
+  },
+  goalDelta: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#FF9800',
+  },
+  goalAchieved: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#4CAF50',
+  },
 });
 
 export default DashboardScreen;

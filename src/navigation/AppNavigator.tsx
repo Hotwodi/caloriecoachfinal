@@ -9,6 +9,7 @@ import DashboardScreen from '../screens/DashboardScreen';
 import MealAnalysisScreen from '../screens/MealAnalysisScreen';
 import ProgressScreen from '../screens/ProgressScreen';
 import SuggestionsScreen from '../screens/SuggestionsScreen';
+import SettingsScreen from '../screens/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -111,6 +112,21 @@ const AppNavigator = () => {
                 name="restaurant"
                 size={24}
                 color={focused ? '#FF5722' : '#748c94'}
+              />
+            ),
+            headerShown: false
+          }}
+        />
+
+        <Tab.Screen
+          name="Settings"
+          component={SettingsScreen}
+          options={{
+            tabBarIcon: ({ focused }) => (
+              <Ionicons
+                name="settings-outline"
+                size={24}
+                color={focused ? '#2196F3' : '#748c94'}
               />
             ),
             headerShown: false
